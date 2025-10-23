@@ -1,0 +1,21 @@
+# Railway 環境變數設定
+# 請複製以下內容到 Railway Dashboard > Variables 頁面
+
+# 個人 Gmail
+GOOGLE_CLIENT_ID_PERSONAL=506910907793-5qt0...
+GOOGLE_CLIENT_SECRET_PERSONAL=your_personal_secret
+
+# 公司 A
+GOOGLE_CLIENT_ID_COMPANY_A=506910907793-abc1...
+GOOGLE_CLIENT_SECRET_COMPANY_A=your_company_a_secret
+
+# 公司 B
+GOOGLE_CLIENT_ID_COMPANY_B=506910907793-xyz2...
+GOOGLE_CLIENT_SECRET_COMPANY_B=your_company_b_secret
+
+# 通用設定
+GOOGLE_REDIRECT_URI=https://gmail-mcp-gateway-production.up.railway.app/auth/google/callback
+SUPABASE_URL=your_supabase_url_here
+SUPABASE_ANON_KEY=your_supabase_anon_key_here
+NODE_ENV=production
+PORT=3000

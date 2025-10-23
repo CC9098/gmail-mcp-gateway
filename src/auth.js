@@ -9,22 +9,60 @@ const supabase = createClient(
 
 class AuthService {
   constructor() {
-    this.oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      process.env.GOOGLE_REDIRECT_URI
+    // 多個 Google 憑證配置
+    this.configs = {
+      personal: {
+        clientId: process.env.GOOGLE_CLIENT_ID_PERSONAL,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET_PERSONAL
+      },
+      companyA: {
+        clientId: process.env.GOOGLE_CLIENT_ID_COMPANY_A,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET_COMPANY_A
+      },
+      companyB: {
+        clientId: process.env.GOOGLE_CLIENT_ID_COMPANY_B,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET_COMPANY_B
+      }
+    };
+    
+    this.redirectUri = process.env.GOOGLE_REDIRECT_URI;
+  }
+
+  // 根據郵箱域名獲取配置
+  getConfigForEmail(email) {
+    if (email.endsWith('@gmail.com')) {
+      return this.configs.personal;
+    } else if (email.includes('stceciliacare.com')) {
+      return this.configs.companyA;
+    } else if (email.includes('company2.com')) {
+      return this.configs.companyB;
+    } else {
+      // 預設使用個人配置
+      return this.configs.personal;
+    }
+  }
+
+  // 創建 OAuth2 客戶端
+  createOAuth2Client(email) {
+    const config = this.getConfigForEmail(email);
+    return new google.auth.OAuth2(
+      config.clientId,
+      config.clientSecret,
+      this.redirectUri
     );
   }
 
   // 生成 OAuth 認證 URL
-  getAuthUrl() {
+  getAuthUrl(email = '') {
     const scopes = [
       'https://www.googleapis.com/auth/gmail.readonly',
       'https://www.googleapis.com/auth/gmail.send',
       'https://www.googleapis.com/auth/gmail.modify'
     ];
 
-    return this.oauth2Client.generateAuthUrl({
+    const oauth2Client = this.createOAuth2Client(email);
+    
+    return oauth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: scopes,
       prompt: 'consent' // 強制顯示同意畫面以獲取 refresh token
@@ -32,13 +70,14 @@ class AuthService {
   }
 
   // 處理 OAuth 回調並儲存 tokens
-  async handleCallback(code) {
+  async handleCallback(code, email = '') {
     try {
-      const { tokens } = await this.oauth2Client.getToken(code);
-      this.oauth2Client.setCredentials(tokens);
+      const oauth2Client = this.createOAuth2Client(email);
+      const { tokens } = await oauth2Client.getToken(code);
+      oauth2Client.setCredentials(tokens);
 
       // 獲取用戶資訊
-      const oauth2 = google.oauth2({ version: 'v2', auth: this.oauth2Client });
+      const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
       const { data } = await oauth2.userinfo.get();
       
       const userInfo = {
@@ -115,11 +154,12 @@ class AuthService {
         throw new Error('No refresh token available');
       }
 
-      this.oauth2Client.setCredentials({
+      const oauth2Client = this.createOAuth2Client(email);
+      oauth2Client.setCredentials({
         refresh_token: userData.refresh_token
       });
 
-      const { credentials } = await this.oauth2Client.refreshAccessToken();
+      const { credentials } = await oauth2Client.refreshAccessToken();
       
       // 更新 Supabase 中的 tokens
       const { error } = await supabase
@@ -158,12 +198,13 @@ class AuthService {
         userData.expiry_date = updatedData.expiry_date;
       }
 
-      this.oauth2Client.setCredentials({
+      const oauth2Client = this.createOAuth2Client(email);
+      oauth2Client.setCredentials({
         access_token: userData.access_token,
         refresh_token: userData.refresh_token
       });
 
-      return this.oauth2Client;
+      return oauth2Client;
     } catch (error) {
       console.error('Get valid OAuth client error:', error);
       throw error;
