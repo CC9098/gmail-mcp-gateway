@@ -294,25 +294,25 @@ class GmailService {
     if (lowerQuery.includes('starred') || lowerQuery.includes('星標')) {
       return 'is:starred';
     }
-    if (lowerQuery.includes('from:') || lowerQuery.includes('寄件者:')) {
-      const match = query.match(/from:(\S+)/i) || query.match(/寄件者:(\S+)/i);
+    if (lowerQuery.includes('from:')) {
+      const match = query.match(/from:(\S+)/i);
       if (match) return `from:${match[1]}`;
     }
-    if (lowerQuery.includes('to:') || lowerQuery.includes('收件者:')) {
-      const match = query.match(/to:(\S+)/i) || query.match(/收件者:(\S+)/i);
+    if (lowerQuery.includes('to:')) {
+      const match = query.match(/to:(\S+)/i);
       if (match) return `to:${match[1]}`;
     }
-    if (lowerQuery.includes('subject:') || lowerQuery.includes('主旨:')) {
-      const match = query.match(/subject:(\S+)/i) || query.match(/主旨:(\S+)/i);
+    if (lowerQuery.includes('subject:')) {
+      const match = query.match(/subject:(\S+)/i);
       if (match) return `subject:${match[1]}`;
     }
-    if (lowerQuery.includes('revolut') || lowerQuery.includes('收據')) {
-      return 'from:revolut OR subject:receipt OR subject:收據';
+    if (lowerQuery.includes('revolut') || lowerQuery.includes('receipt')) {
+      return 'from:revolut OR subject:receipt';
     }
-    if (lowerQuery.includes('today') || lowerQuery.includes('今天')) {
+    if (lowerQuery.includes('today')) {
       return 'newer_than:1d';
     }
-    if (lowerQuery.includes('yesterday') || lowerQuery.includes('昨天')) {
+    if (lowerQuery.includes('yesterday')) {
       return 'newer_than:2d older_than:1d';
     }
     
