@@ -10,6 +10,9 @@ const GmailService = require('./gmailService');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 信任代理 (Railway 需要)
+app.set('trust proxy', 1);
+
 // 中介軟體設定
 app.use(helmet());
 app.use(cors());
@@ -20,7 +23,8 @@ app.use(express.urlencoded({ extended: true }));
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 分鐘
   max: 100, // 限制每個 IP 100 次請求
-  message: 'Too many requests from this IP, please try again later.'
+  message: 'Too many requests from this IP, please try again later.',
+  trustProxy: true // 信任代理
 });
 app.use('/api/', limiter);
 
