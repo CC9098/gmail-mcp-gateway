@@ -5,11 +5,11 @@
 GOOGLE_CLIENT_ID_PERSONAL=506910907793-5qt0...
 GOOGLE_CLIENT_SECRET_PERSONAL=your_personal_secret
 
-# 公司 A
+# 公司 A - St Cecilia Care (stceciliacare.com)
 GOOGLE_CLIENT_ID_COMPANY_A=506910907793-abc1...
 GOOGLE_CLIENT_SECRET_COMPANY_A=your_company_a_secret
 
-# 公司 B
+# 公司 B - Summerhill Care (summerhillcare.uk)
 GOOGLE_CLIENT_ID_COMPANY_B=506910907793-xyz2...
 GOOGLE_CLIENT_SECRET_COMPANY_B=your_company_b_secret
 

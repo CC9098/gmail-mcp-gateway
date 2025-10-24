@@ -34,7 +34,7 @@ class AuthService {
       return this.configs.personal;
     } else if (email.includes('stceciliacare.com')) {
       return this.configs.companyA;
-    } else if (email.includes('company2.com')) {
+    } else if (email.includes('summerhillcare.uk')) {
       return this.configs.companyB;
     } else {
       // 預設使用個人配置
