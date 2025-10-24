@@ -115,14 +115,17 @@ class AuthService {
       
       oauth2Client.setCredentials(tokens);
 
-      // 獲取用戶資訊
-      const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
-      const { data } = await oauth2.userinfo.get();
+      // 獲取用戶資訊 - 使用 People API 替代已棄用的 Google+ API
+      const people = google.people({ version: 'v1', auth: oauth2Client });
+      const { data } = await people.people.get({
+        resourceName: 'people/me',
+        personFields: 'names,emailAddresses,photos'
+      });
       
       const userInfo = {
-        email: data.email,
-        name: data.name,
-        picture: data.picture,
+        email: data.emailAddresses?.[0]?.value || 'unknown',
+        name: data.names?.[0]?.displayName || 'unknown',
+        picture: data.photos?.[0]?.url || null,
         access_token: tokens.access_token,
         refresh_token: tokens.refresh_token,
         expiry_date: tokens.expiry_date,
