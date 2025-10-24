@@ -285,8 +285,14 @@ class GmailService {
     const lowerQuery = query.toLowerCase();
     
     // 常見的自然語言模式
-    if (lowerQuery.includes('unread')) {
+    if (lowerQuery.includes('unread') || lowerQuery.includes('未讀')) {
       return 'is:unread';
+    }
+    if (lowerQuery.includes('important') || lowerQuery.includes('重要')) {
+      return 'is:important';
+    }
+    if (lowerQuery.includes('starred') || lowerQuery.includes('星標')) {
+      return 'is:starred';
     }
     if (lowerQuery.includes('from:') || lowerQuery.includes('寄件者:')) {
       const match = query.match(/from:(\S+)/i) || query.match(/寄件者:(\S+)/i);
