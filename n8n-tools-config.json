@@ -1,0 +1,141 @@
+{
+  "gmail-mcp-tools": {
+    "list_emails": {
+      "name": "List Emails",
+      "description": "列出 Gmail 郵件",
+      "method": "GET",
+      "url": "https://gmail-mcp-gateway-production.up.railway.app/api/listEmails",
+      "parameters": {
+        "email": {
+          "type": "string",
+          "description": "用戶郵箱地址",
+          "ai_enabled": true
+        },
+        "maxResults": {
+          "type": "number",
+          "description": "最大結果數量",
+          "default": 10,
+          "ai_enabled": true
+        },
+        "query": {
+          "type": "string",
+          "description": "搜索查詢",
+          "default": "",
+          "ai_enabled": true
+        }
+      }
+    },
+    "natural_query": {
+      "name": "Natural Language Query",
+      "description": "使用自然語言查詢 Gmail",
+      "method": "POST",
+      "url": "https://gmail-mcp-gateway-production.up.railway.app/api/naturalQuery",
+      "body": {
+        "email": {
+          "type": "string",
+          "description": "用戶郵箱地址",
+          "ai_enabled": true
+        },
+        "query": {
+          "type": "string",
+          "description": "自然語言查詢",
+          "ai_enabled": true,
+          "examples": [
+            "列出未讀郵件",
+            "找出重要郵件",
+            "顯示今天的郵件",
+            "找出來自 GitHub 的郵件"
+          ]
+        },
+        "maxResults": {
+          "type": "number",
+          "description": "最大結果數量",
+          "default": 10,
+          "ai_enabled": true
+        }
+      }
+    },
+    "read_email": {
+      "name": "Read Email",
+      "description": "讀取特定郵件內容",
+      "method": "GET",
+      "url": "https://gmail-mcp-gateway-production.up.railway.app/api/readEmail",
+      "parameters": {
+        "email": {
+          "type": "string",
+          "description": "用戶郵箱地址",
+          "ai_enabled": true
+        },
+        "messageId": {
+          "type": "string",
+          "description": "郵件 ID",
+          "ai_enabled": true
+        }
+      }
+    },
+    "send_email": {
+      "name": "Send Email",
+      "description": "發送郵件",
+      "method": "POST",
+      "url": "https://gmail-mcp-gateway-production.up.railway.app/api/sendEmail",
+      "body": {
+        "email": {
+          "type": "string",
+          "description": "發件人郵箱地址",
+          "ai_enabled": true
+        },
+        "to": {
+          "type": "string",
+          "description": "收件人郵箱地址",
+          "ai_enabled": true
+        },
+        "subject": {
+          "type": "string",
+          "description": "郵件主題",
+          "ai_enabled": true
+        },
+        "body": {
+          "type": "string",
+          "description": "郵件內容",
+          "ai_enabled": true
+        }
+      }
+    },
+    "mark_as_read": {
+      "name": "Mark as Read",
+      "description": "標記郵件為已讀",
+      "method": "POST",
+      "url": "https://gmail-mcp-gateway-production.up.railway.app/api/markAsRead",
+      "body": {
+        "email": {
+          "type": "string",
+          "description": "用戶郵箱地址",
+          "ai_enabled": true
+        },
+        "messageIds": {
+          "type": "array",
+          "description": "郵件 ID 數組",
+          "ai_enabled": true
+        }
+      }
+    },
+    "delete_emails": {
+      "name": "Delete Emails",
+      "description": "刪除郵件",
+      "method": "POST",
+      "url": "https://gmail-mcp-gateway-production.up.railway.app/api/deleteEmails",
+      "body": {
+        "email": {
+          "type": "string",
+          "description": "用戶郵箱地址",
+          "ai_enabled": true
+        },
+        "messageIds": {
+          "type": "array",
+          "description": "要刪除的郵件 ID 數組",
+          "ai_enabled": true
+        }
+      }
+    }
+  }
+}
