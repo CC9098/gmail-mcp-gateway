@@ -69,6 +69,88 @@ app.get('/test-supabase', async (req, res) => {
   }
 });
 
+// MCP 端點
+app.get('/mcp/:sessionId', (req, res) => {
+  const { sessionId } = req.params;
+  
+  res.json({
+    success: true,
+    message: 'Gmail MCP Gateway is ready',
+    sessionId: sessionId,
+    endpoints: {
+      'list_emails': {
+        method: 'POST',
+        url: `/mcp/${sessionId}/list_emails`,
+        description: '列出 Gmail 郵件'
+      },
+      'natural_query': {
+        method: 'POST',
+        url: `/mcp/${sessionId}/natural_query`,
+        description: '使用自然語言查詢 Gmail'
+      },
+      'read_email': {
+        method: 'POST',
+        url: `/mcp/${sessionId}/read_email`,
+        description: '讀取特定郵件內容'
+      },
+      'send_email': {
+        method: 'POST',
+        url: `/mcp/${sessionId}/send_email`,
+        description: '發送郵件'
+      }
+    },
+    usage: {
+      example: `POST /mcp/${sessionId}/list_emails`,
+      body: {
+        email: 'user@gmail.com',
+        maxResults: 10,
+        query: ''
+      }
+    }
+  });
+});
+
+// MCP 工具端點
+app.post('/mcp/:sessionId/list_emails', async (req, res) => {
+  try {
+    const { email, maxResults = 10, query = '' } = req.body;
+    const result = await gmailService.listEmails(email, query, maxResults);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/mcp/:sessionId/natural_query', async (req, res) => {
+  try {
+    const { email, query, maxResults = 10 } = req.body;
+    const result = await gmailService.processNaturalQuery(email, query, maxResults);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/mcp/:sessionId/read_email', async (req, res) => {
+  try {
+    const { email, messageId } = req.body;
+    const result = await gmailService.readEmail(email, messageId);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/mcp/:sessionId/send_email', async (req, res) => {
+  try {
+    const { email, to, subject, body } = req.body;
+    const result = await gmailService.sendEmail(email, to, subject, body);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // OAuth 認證路由
 app.get('/auth/google', (req, res) => {
   try {
