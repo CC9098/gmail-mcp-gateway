@@ -111,11 +111,14 @@ class AuthService {
       };
 
       // 儲存到 Supabase
+      console.log('Storing user data to Supabase:', { email: data.email });
       const { data: existingUser, error: fetchError } = await supabase
         .from('gmail_users')
         .select('*')
         .eq('email', data.email)
         .single();
+      
+      console.log('Supabase fetch result:', { existingUser, fetchError });
 
       if (fetchError && fetchError.code !== 'PGRST116') {
         throw fetchError;
@@ -123,18 +126,22 @@ class AuthService {
 
       if (existingUser) {
         // 更新現有用戶
+        console.log('Updating existing user:', data.email);
         const { error: updateError } = await supabase
           .from('gmail_users')
           .update(userInfo)
           .eq('email', data.email);
         
+        console.log('Update result:', { updateError });
         if (updateError) throw updateError;
       } else {
         // 新增用戶
+        console.log('Inserting new user:', data.email);
         const { error: insertError } = await supabase
           .from('gmail_users')
           .insert(userInfo);
         
+        console.log('Insert result:', { insertError });
         if (insertError) throw insertError;
       }
 
