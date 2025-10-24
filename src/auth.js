@@ -45,7 +45,12 @@ class AuthService {
   // 獲取預設配置（用於 OAuth 流程開始時）
   getDefaultConfig() {
     // 預設使用個人 Gmail 配置
-    return this.configs.personal;
+    const config = this.configs.personal;
+    console.log('Using default config:', { 
+      clientId: config.clientId ? 'Set' : 'Not Set',
+      clientSecret: config.clientSecret ? 'Set' : 'Not Set'
+    });
+    return config;
   }
 
   // 創建 OAuth2 客戶端
@@ -84,15 +89,30 @@ class AuthService {
   // 處理 OAuth 回調並儲存 tokens
   async handleCallback(code, email = '') {
     try {
+      console.log('OAuth callback started with code:', code);
+      
       // 使用預設配置處理 OAuth 回調
       const config = this.getDefaultConfig();
+      console.log('OAuth config:', {
+        clientId: config.clientId,
+        clientSecret: config.clientSecret ? 'Set' : 'Not Set',
+        redirectUri: this.redirectUri
+      });
+      
       const oauth2Client = new google.auth.OAuth2(
         config.clientId,
         config.clientSecret,
         this.redirectUri
       );
       
+      console.log('Getting tokens from Google...');
       const { tokens } = await oauth2Client.getToken(code);
+      console.log('Tokens received:', { 
+        access_token: tokens.access_token ? 'Set' : 'Not Set',
+        refresh_token: tokens.refresh_token ? 'Set' : 'Not Set',
+        expiry_date: tokens.expiry_date
+      });
+      
       oauth2Client.setCredentials(tokens);
 
       // 獲取用戶資訊
