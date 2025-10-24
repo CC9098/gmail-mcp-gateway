@@ -42,6 +42,12 @@ class AuthService {
     }
   }
 
+  // 獲取預設配置（用於 OAuth 流程開始時）
+  getDefaultConfig() {
+    // 預設使用個人 Gmail 配置
+    return this.configs.personal;
+  }
+
   // 創建 OAuth2 客戶端
   createOAuth2Client(email) {
     const config = this.getConfigForEmail(email);
@@ -60,7 +66,13 @@ class AuthService {
       'https://www.googleapis.com/auth/gmail.modify'
     ];
 
-    const oauth2Client = this.createOAuth2Client(email);
+    // 如果沒有指定郵箱，使用預設配置
+    const config = email ? this.getConfigForEmail(email) : this.getDefaultConfig();
+    const oauth2Client = new google.auth.OAuth2(
+      config.clientId,
+      config.clientSecret,
+      this.redirectUri
+    );
     
     return oauth2Client.generateAuthUrl({
       access_type: 'offline',
@@ -72,7 +84,14 @@ class AuthService {
   // 處理 OAuth 回調並儲存 tokens
   async handleCallback(code, email = '') {
     try {
-      const oauth2Client = this.createOAuth2Client(email);
+      // 使用預設配置處理 OAuth 回調
+      const config = this.getDefaultConfig();
+      const oauth2Client = new google.auth.OAuth2(
+        config.clientId,
+        config.clientSecret,
+        this.redirectUri
+      );
+      
       const { tokens } = await oauth2Client.getToken(code);
       oauth2Client.setCredentials(tokens);
 
