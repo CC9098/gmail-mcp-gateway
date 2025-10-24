@@ -57,7 +57,16 @@ app.get('/auth/google', (req, res) => {
 
 app.get('/auth/google/callback', async (req, res) => {
   try {
-    const { code } = req.query;
+    const { code, error: authError } = req.query;
+    
+    console.log('OAuth callback received:', { code, authError, query: req.query });
+    
+    if (authError) {
+      return res.status(400).json({ 
+        success: false, 
+        error: `OAuth error: ${authError}` 
+      });
+    }
     
     if (!code) {
       return res.status(400).json({ 
@@ -66,7 +75,10 @@ app.get('/auth/google/callback', async (req, res) => {
       });
     }
 
+    console.log('Processing OAuth code:', code);
     const result = await authService.handleCallback(code);
+    console.log('OAuth success:', result);
+    
     res.json({ 
       success: true, 
       message: 'OAuth 認證成功',
@@ -76,7 +88,8 @@ app.get('/auth/google/callback', async (req, res) => {
     console.error('OAuth callback error:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'OAuth callback failed' 
+      error: 'OAuth callback failed',
+      details: error.message 
     });
   }
 });

@@ -15,7 +15,7 @@ GOOGLE_CLIENT_SECRET_COMPANY_B=your_company_b_secret
 
 # 通用設定
 GOOGLE_REDIRECT_URI=https://gmail-mcp-gateway-production.up.railway.app/auth/google/callback
-SUPABASE_URL=your_supabase_url_here
-SUPABASE_ANON_KEY=your_supabase_anon_key_here
+SUPABASE_URL=https://ddcrgsrlzgfykilnvkyq.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkY3Jnc3JsemdmeWtpbG52a3lxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyNTQ3MTUsImV4cCI6MjA3NjgzMDcxNX0.JDc3tMALSzZc8ejx7FGs_fhn6nXOsJXux5T1hO4W3ns
 NODE_ENV=production
 PORT=3000
