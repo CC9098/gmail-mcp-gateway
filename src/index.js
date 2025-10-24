@@ -37,6 +37,38 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Supabase 連接測試
+app.get('/test-supabase', async (req, res) => {
+  try {
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_ANON_KEY
+    );
+    
+    // 測試連接
+    const { data, error } = await supabase
+      .from('gmail_users')
+      .select('count')
+      .limit(1);
+    
+    res.json({
+      success: true,
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseKey: process.env.SUPABASE_ANON_KEY ? 'Set' : 'Not Set',
+      connectionTest: error ? { error: error.message } : { success: true },
+      data: data
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      error: error.message,
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseKey: process.env.SUPABASE_ANON_KEY ? 'Set' : 'Not Set'
+    });
+  }
+});
+
 // OAuth 認證路由
 app.get('/auth/google', (req, res) => {
   try {
