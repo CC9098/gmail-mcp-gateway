@@ -273,10 +273,7 @@ class GmailService {
       // 將自然語言查詢轉換為 Gmail 搜尋語法
       const gmailQuery = this.parseNaturalLanguageQuery(query);
       
-      return await this.listEmails(email, {
-        ...options,
-        query: gmailQuery
-      });
+      return await this.listEmails(email, gmailQuery, options.maxResults || 10);
     } catch (error) {
       console.error('Search emails error:', error);
       throw error;
