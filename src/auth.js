@@ -33,8 +33,18 @@ class AuthService {
     if (email.endsWith('@gmail.com')) {
       return this.configs.personal;
     } else if (email.includes('stceciliacare.com')) {
+      // 如果 companyA 配置未设置，使用默认配置
+      if (!this.configs.companyA.clientId) {
+        console.warn(`Company A config not set for ${email}, using default config`);
+        return this.configs.personal;
+      }
       return this.configs.companyA;
     } else if (email.includes('summerhillcare.uk')) {
+      // 如果 companyB 配置未设置，使用默认配置
+      if (!this.configs.companyB.clientId) {
+        console.warn(`Company B config not set for ${email}, using default config`);
+        return this.configs.personal;
+      }
       return this.configs.companyB;
     } else {
       // 預設使用個人配置
@@ -91,11 +101,14 @@ class AuthService {
   // 處理 OAuth 回調並儲存 tokens
   async handleCallback(code, email = '') {
     try {
-      console.log('OAuth callback started with code:', code);
+      console.log('OAuth callback started with code:', code, 'email hint:', email);
       
-      // 使用預設配置處理 OAuth 回調
-      const config = this.getDefaultConfig();
+      // 如果提供了邮箱，尝试根据邮箱选择配置
+      // 否则使用默认配置（但之后会根据实际用户邮箱更新）
+      let config = email ? this.getConfigForEmail(email) : this.getDefaultConfig();
+      
       console.log('OAuth config:', {
+        email: email || 'not provided',
         clientId: config.clientId,
         clientSecret: config.clientSecret ? 'Set' : 'Not Set',
         redirectUri: this.redirectUri
@@ -108,7 +121,18 @@ class AuthService {
       );
       
       console.log('Getting tokens from Google...');
-      const { tokens } = await oauth2Client.getToken(code);
+      let tokens;
+      try {
+        const tokenResponse = await oauth2Client.getToken(code);
+        tokens = tokenResponse.tokens;
+      } catch (tokenError) {
+        console.error('Token exchange error:', tokenError);
+        // 如果是 invalid_grant，可能是授权码已使用或过期
+        if (tokenError.message && tokenError.message.includes('invalid_grant')) {
+          throw new Error('授权码无效或已过期。请重新访问授权页面获取新的授权码。');
+        }
+        throw tokenError;
+      }
       console.log('Tokens received:', { 
         access_token: tokens.access_token ? 'Set' : 'Not Set',
         refresh_token: tokens.refresh_token ? 'Set' : 'Not Set',
@@ -135,39 +159,23 @@ class AuthService {
         scope: tokens.scope
       };
 
-      // 儲存到 Supabase
-      console.log('Storing user data to Supabase:', { email: data.email });
-      const { data: existingUser, error: fetchError } = await supabase
+      // 儲存到 Supabase - 使用 UPSERT 避免重複鍵錯誤
+      console.log('Storing user data to Supabase:', { email: userInfo.email });
+      
+      // 使用 upsert 操作（如果存在則更新，不存在則插入）
+      const { data: upsertData, error: upsertError } = await supabase
         .from('gmail_users')
-        .select('*')
-        .eq('email', data.email)
+        .upsert(userInfo, {
+          onConflict: 'email',
+          ignoreDuplicates: false
+        })
+        .select()
         .single();
       
-      console.log('Supabase fetch result:', { existingUser, fetchError });
-
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        throw fetchError;
-      }
-
-      if (existingUser) {
-        // 更新現有用戶
-        console.log('Updating existing user:', data.email);
-        const { error: updateError } = await supabase
-          .from('gmail_users')
-          .update(userInfo)
-          .eq('email', data.email);
-        
-        console.log('Update result:', { updateError });
-        if (updateError) throw updateError;
-      } else {
-        // 新增用戶
-        console.log('Inserting new user:', data.email);
-        const { error: insertError } = await supabase
-          .from('gmail_users')
-          .insert(userInfo);
-        
-        console.log('Insert result:', { insertError });
-        if (insertError) throw insertError;
+      console.log('Upsert result:', { upsertData, upsertError });
+      if (upsertError) {
+        console.error('Upsert error details:', upsertError);
+        throw upsertError;
       }
 
       return { success: true, user: userInfo };

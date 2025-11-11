@@ -115,7 +115,10 @@ app.get('/mcp', (req, res) => {
 app.post('/mcp/list_emails', async (req, res) => {
   try {
     const { email, maxResults = 10, query = '' } = req.body;
-    const result = await gmailService.listEmails(email, query, maxResults);
+    const result = await gmailService.listEmails(email, {
+      query,
+      maxResults
+    });
     res.json({ success: true, data: result });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -155,17 +158,21 @@ app.post('/mcp/send_email', async (req, res) => {
 // OAuth 認證路由
 app.get('/auth/google', (req, res) => {
   try {
-    const authUrl = authService.getAuthUrl();
+    // 支持通过 query 参数指定邮箱
+    const email = req.query.email || '';
+    const authUrl = authService.getAuthUrl(email);
     res.json({ 
       success: true, 
       authUrl,
+      email: email || 'not specified',
       message: '請訪問此 URL 進行 OAuth 認證'
     });
   } catch (error) {
     console.error('Auth URL generation error:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Failed to generate auth URL' 
+      error: 'Failed to generate auth URL',
+      details: error.message 
     });
   }
 });

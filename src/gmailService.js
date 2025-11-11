@@ -273,11 +273,19 @@ class GmailService {
       // 將自然語言查詢轉換為 Gmail 搜尋語法
       const gmailQuery = this.parseNaturalLanguageQuery(query);
       
-      return await this.listEmails(email, gmailQuery, options.maxResults || 10);
+      return await this.listEmails(email, {
+        query: gmailQuery,
+        maxResults: options.maxResults || 10
+      });
     } catch (error) {
       console.error('Search emails error:', error);
       throw error;
     }
+  }
+
+  // 處理自然語言查詢（別名方法，用於兼容性）
+  async processNaturalQuery(email, query, maxResults = 10) {
+    return await this.searchEmails(email, query, { maxResults });
   }
 
   // 解析自然語言查詢

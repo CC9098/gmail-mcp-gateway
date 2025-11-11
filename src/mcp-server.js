@@ -164,7 +164,10 @@ class GmailMCPServer {
 
   async handleListEmails(args) {
     const { email, maxResults = 10, query = '' } = args;
-    const result = await this.gmailService.listEmails(email, query, maxResults);
+    const result = await this.gmailService.listEmails(email, {
+      query,
+      maxResults
+    });
     
     return {
       content: [
